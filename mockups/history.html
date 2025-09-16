@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電卓アプリ - 計算履歴</title>
+    <!-- Material UI CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-ui/4.12.4/material-ui.min.css">
+    
+    <!-- React and Material-UI CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .nav-btn.active:hover {
+            background: #556cd6;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .history-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .history-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .clear-all-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-all-btn:hover {
+            background: #d32f2f;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .history-item.basic {
+            border-left: 4px solid #4caf50;
+        }
+
+        .history-item.tax-inclusive {
+            border-left: 4px solid #9c27b0;
+        }
+
+        .history-item.tax-exclusive {
+            border-left: 4px solid #673ab7;
+        }
+
+        .history-expression {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-result {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .history-type {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .history-type.basic {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .history-type.tax-inclusive {
+            background: #f3e5f5;
+            color: #9c27b0;
+        }
+
+        .history-type.tax-exclusive {
+            background: #ede7f6;
+            color: #673ab7;
+        }
+
+        .history-time {
+            color: #aaa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+
+        .use-hint {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 12px;
+            color: #667eea;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .history-item:hover .use-hint {
+            opacity: 1;
+        }
+
+        .back-to-calc {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .back-to-calc:hover {
+            background: #556cd6;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="app-title">電卓アプリ</div>
+        <nav class="nav-menu">
+            <button class="nav-btn" onclick="window.location.href='/'">計算</button>
+            <button class="nav-btn active">履歴</button>
+        </nav>
+    </header>
+
+    <main class="main-container">
+        <div class="history-container">
+            <div class="history-header">
+                <div class="history-title">計算履歴</div>
+                <button class="clear-all-btn" onclick="clearAllHistory()">全削除</button>
+            </div>
+
+            <!-- フィルター -->
+            <div class="filter-section">
+                <button class="filter-btn active" onclick="filterHistory('all')">すべて</button>
+                <button class="filter-btn" onclick="filterHistory('basic')">基本計算</button>
+                <button class="filter-btn" onclick="filterHistory('tax-inclusive')">税込</button>
+                <button class="filter-btn" onclick="filterHistory('tax-exclusive')">税抜</button>
+            </div>
+
+            <!-- 履歴リスト -->
+            <div class="history-list" id="historyList">
+                <!-- 履歴項目がここに動的に生成される -->
+            </div>
+
+            <button class="back-to-calc" onclick="window.location.href='/'">
+                ← 計算画面に戻る
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // 履歴データの管理
+        let currentFilter = 'all';
+
+        // 履歴データの生成（デモ用）
+        function generateSampleHistory() {
+            const sampleHistory = [
+                { id: '1', expression: '1500 + 税10%', result: 1650, type: 'tax-inclusive', timestamp: new Date(Date.now() - 60000) },
+                { id: '2', expression: '100 + 200', result: 300, type: 'basic', timestamp: new Date(Date.now() - 120000) },
+                { id: '3', expression: '1100 - 税10%', result: 1000, type: 'tax-exclusive', timestamp: new Date(Date.now() - 180000) },
+                { id: '4', expression: '50 × 3', result: 150, type: 'basic', timestamp: new Date(Date.now() - 240000) },
+                { id: '5', expression: '2000 + 税10%', result: 2200, type: 'tax-inclusive', timestamp: new Date(Date.now() - 300000) },
+                { id: '6', expression: '25 + 25', result: 50, type: 'basic', timestamp: new Date(Date.now() - 360000) },
+                { id: '7', expression: '3300 - 税10%', result: 3000, type: 'tax-exclusive', timestamp: new Date(Date.now() - 420000) },
+                { id: '8', expression: '75 ÷ 3', result: 25, type: 'basic', timestamp: new Date(Date.now() - 480000) }
+            ];
+            
+            // ローカルストレージに保存されている履歴があれば使用
+            const existingHistory = localStorage.getItem('calculatorHistory');
+            if (existingHistory) {
+                return JSON.parse(existingHistory);
+            } else {
+                localStorage.setItem('calculatorHistory', JSON.stringify(sampleHistory));
+                return sampleHistory;
+            }
+        }
+
+        // 相対時間の表示
+        function getRelativeTime(timestamp) {
+            const now = new Date();
+            const diff = now - new Date(timestamp);
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'たった今';
+            if (minutes < 60) return `${minutes}分前`;
+            if (hours < 24) return `${hours}時間前`;
+            return `${days}日前`;
+        }
+
+        // 履歴項目のHTML生成
+        function createHistoryItemHTML(item) {
+            return `
+                <div class="history-item ${item.type}" onclick="useHistoryResult(${item.result})">
+                    <div class="use-hint">クリックして使用</div>
+                    <div class="history-expression">${item.expression}</div>
+                    <div class="history-result">${item.result.toLocaleString()}</div>
+                    <div class="history-meta">
+                        <span class="history-type ${item.type}">
+                            ${item.type === 'basic' ? '基本' : item.type === 'tax-inclusive' ? '税込' : '税抜'}
+                        </span>
+                        <span class="history-time">${getRelativeTime(item.timestamp)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 履歴表示の更新
+        function updateHistoryDisplay() {
+            const history = generateSampleHistory();
+            const historyList = document.getElementById('historyList');
+            
+            // フィルタリング
+            const filteredHistory = currentFilter === 'all' 
+                ? history 
+                : history.filter(item => item.type === currentFilter);
+
+            if (filteredHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <div>計算履歴がありません</div>
+                        <div style="font-size: 14px; margin-top: 8px;">計算を実行すると履歴が表示されます</div>
+                    </div>
+                `;
+            } else {
+                historyList.innerHTML = filteredHistory.map(createHistoryItemHTML).join('');
+            }
+        }
+
+        // フィルター変更
+        function filterHistory(type) {
+            currentFilter = type;
+            
+            // フィルターボタンの状態更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateHistoryDisplay();
+        }
+
+        // 履歴結果の使用
+        function useHistoryResult(result) {
+            // メイン計算ページに結果を渡して遷移
+            localStorage.setItem('transferValue', result.toString());
+            window.location.href = '/';
+        }
+
+        // 全履歴削除
+        function clearAllHistory() {
+            if (confirm('すべての計算履歴を削除しますか？')) {
+                localStorage.removeItem('calculatorHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // ページ読み込み時の処理
+        window.addEventListener('load', function() {
+            updateHistoryDisplay();
+            
+            // 定期的に相対時間を更新
+            setInterval(updateHistoryDisplay, 60000);
+        });
+
+        // キーボード操作
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>

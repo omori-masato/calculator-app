@@ -1,0 +1,30 @@
+{
+  "name": "calculator-project",
+  "version": "1.0.0",
+  "description": "Full-stack calculator application with React frontend and Node.js backend",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build:all": "cd backend && npm run build && cd ../frontend && npm run build",
+    "test:all": "npm run test:backend && npm run test:frontend",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test -- --coverage --watchAll=false",
+    "test:integration": "cd backend && npm test -- --testPathPattern=integration",
+    "test:e2e": "npm run start:backend:test & npm run start:frontend & sleep 5 && npm run test:playwright",
+    "test:playwright": "cd e2e && npx playwright test",
+    "start:backend": "cd backend && npm start",
+    "start:backend:test": "cd backend && NODE_ENV=test npm start",
+    "start:frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "lint": "cd backend && npm run lint && cd ../frontend && npm run lint",
+    "coverage": "npm run test:backend -- --coverage && npm run test:frontend"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}

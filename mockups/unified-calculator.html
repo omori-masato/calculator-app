@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電卓アプリ - 統合画面</title>
+    <!-- Material UI CDN -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-ui/4.12.4/material-ui.min.css">
+    
+    <!-- React and Material-UI CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@mui/material@latest/umd/material-ui.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 計算機セクション */
+        .calculator-section {
+            flex: 0 0 60%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .display {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            font-size: 28px;
+            font-weight: 500;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            word-break: break-all;
+        }
+
+        .temp-saves {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .temp-save-slot {
+            flex: 1;
+            background: #f0f4ff;
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #e3f2fd;
+            text-align: center;
+        }
+
+        .temp-save-slot.has-value {
+            background: #e8f5e8;
+            border-color: #c8e6c9;
+        }
+
+        .temp-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .temp-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .temp-btn {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .save-btn {
+            background: #2196f3;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #1976d2;
+        }
+
+        .recall-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .recall-btn:hover {
+            background: #388e3c;
+        }
+
+        .recall-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .calc-btn {
+            padding: 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .calc-btn:active {
+            transform: translateY(0);
+        }
+
+        .number-btn {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .number-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .operator-btn {
+            background: #ff9800;
+            color: white;
+        }
+
+        .operator-btn:hover {
+            background: #f57c00;
+        }
+
+        .equals-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .equals-btn:hover {
+            background: #388e3c;
+        }
+
+        .clear-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #d32f2f;
+        }
+
+        .zero-btn {
+            grid-column: span 2;
+        }
+
+        .tax-section {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tax-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tax-inclusive-btn {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .tax-inclusive-btn:hover {
+            background: #7b1fa2;
+        }
+
+        .tax-exclusive-btn {
+            background: #673ab7;
+            color: white;
+        }
+
+        .tax-exclusive-btn:hover {
+            background: #512da8;
+        }
+
+        /* 履歴セクション */
+        .history-section {
+            flex: 0 0 40%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .history-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .clear-all-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clear-all-btn:hover {
+            background: #d32f2f;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 4px 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            background: white;
+            color: #666;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 500px;
+        }
+
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .history-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .history-item.basic {
+            border-left: 3px solid #4caf50;
+        }
+
+        .history-item.tax-inclusive {
+            border-left: 3px solid #9c27b0;
+        }
+
+        .history-item.tax-exclusive {
+            border-left: 3px solid #673ab7;
+        }
+
+        .history-expression {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .history-result {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: #888;
+        }
+
+        .history-type {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 9px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .history-type.basic {
+            background: #e8f5e8;
+            color: #4caf50;
+        }
+
+        .history-type.tax-inclusive {
+            background: #f3e5f5;
+            color: #9c27b0;
+        }
+
+        .history-type.tax-exclusive {
+            background: #ede7f6;
+            color: #673ab7;
+        }
+
+        .history-time {
+            color: #aaa;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            color: #ddd;
+            margin-bottom: 12px;
+        }
+
+        .use-hint {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 10px;
+            color: #667eea;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .history-item:hover .use-hint {
+            opacity: 1;
+        }
+
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .calculator-section {
+                flex: none;
+            }
+            
+            .history-section {
+                flex: none;
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="app-title">電卓アプリ - 統合画面</div>
+    </header>
+
+    <main class="main-container">
+        <!-- 計算機セクション -->
+        <div class="calculator-section">
+            <div class="calculator">
+                <!-- ディスプレイエリア -->
+                <div class="display" id="display">0</div>
+
+                <!-- 一時保存エリア -->
+                <div class="temp-saves">
+                    <div class="temp-save-slot" id="slot1">
+                        <div class="temp-value" id="value1">空</div>
+                        <div class="temp-buttons">
+                            <button class="temp-btn save-btn" onclick="saveToSlot(1)">Save1</button>
+                            <button class="temp-btn recall-btn" id="recall1" onclick="recallFromSlot(1)" disabled>Recall1</button>
+                        </div>
+                    </div>
+                    <div class="temp-save-slot" id="slot2">
+                        <div class="temp-value" id="value2">空</div>
+                        <div class="temp-buttons">
+                            <button class="temp-btn save-btn" onclick="saveToSlot(2)">Save2</button>
+                            <button class="temp-btn recall-btn" id="recall2" onclick="recallFromSlot(2)" disabled>Recall2</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 計算ボタングリッド -->
+                <div class="button-grid">
+                    <button class="calc-btn clear-btn" onclick="clearDisplay()">C</button>
+                    <button class="calc-btn operator-btn" onclick="inputOperator('/')">/</button>
+                    <button class="calc-btn operator-btn" onclick="inputOperator('*')">×</button>
+                    <button class="calc-btn operator-btn" onclick="deleteLastChar()">⌫</button>
+                    
+                    <button class="calc-btn number-btn" onclick="inputNumber('7')">7</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('8')">8</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('9')">9</button>
+                    <button class="calc-btn operator-btn" onclick="inputOperator('-')">-</button>
+                    
+                    <button class="calc-btn number-btn" onclick="inputNumber('4')">4</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('5')">5</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('6')">6</button>
+                    <button class="calc-btn operator-btn" onclick="inputOperator('+')">+</button>
+                    
+                    <button class="calc-btn number-btn" onclick="inputNumber('1')">1</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('2')">2</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('3')">3</button>
+                    <button class="calc-btn equals-btn" onclick="calculate()" style="grid-row: span 2;">=</button>
+                    
+                    <button class="calc-btn number-btn zero-btn" onclick="inputNumber('0')">0</button>
+                    <button class="calc-btn number-btn" onclick="inputNumber('.')">.</button>
+                </div>
+
+                <!-- 税計算ボタン -->
+                <div class="tax-section">
+                    <button class="tax-btn tax-inclusive-btn" onclick="calculateTaxInclusive()">税込 (+10%)</button>
+                    <button class="tax-btn tax-exclusive-btn" onclick="calculateTaxExclusive()">税抜 (-10%)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 履歴セクション -->
+        <div class="history-section">
+            <div class="history-container">
+                <div class="history-header">
+                    <div class="history-title">計算履歴</div>
+                    <button class="clear-all-btn" onclick="clearAllHistory()">全削除</button>
+                </div>
+
+                <!-- フィルター -->
+                <div class="filter-section">
+                    <button class="filter-btn active" onclick="filterHistory('all')">すべて</button>
+                    <button class="filter-btn" onclick="filterHistory('basic')">基本</button>
+                    <button class="filter-btn" onclick="filterHistory('tax-inclusive')">税込</button>
+                    <button class="filter-btn" onclick="filterHistory('tax-exclusive')">税抜</button>
+                </div>
+
+                <!-- 履歴リスト -->
+                <div class="history-list" id="historyList">
+                    <!-- 履歴項目がここに動的に生成される -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 計算状態管理
+        let currentExpression = '';
+        let displayValue = '0';
+        let lastResult = null;
+        let isResultDisplayed = false;
+        const tempStorage = { slot1: null, slot2: null };
+        let currentFilter = 'all';
+
+        // ディスプレイ更新
+        function updateDisplay() {
+            document.getElementById('display').textContent = displayValue;
+        }
+
+        // 数字入力
+        function inputNumber(num) {
+            if (isResultDisplayed) {
+                displayValue = num;
+                currentExpression = num;
+                isResultDisplayed = false;
+            } else if (displayValue === '0' && num !== '.') {
+                displayValue = num;
+                currentExpression = num;
+            } else if (displayValue === 'エラー') {
+                displayValue = num;
+                currentExpression = num;
+            } else {
+                displayValue += num;
+                currentExpression += num;
+            }
+            updateDisplay();
+        }
+
+        // 演算子入力
+        function inputOperator(op) {
+            if (isResultDisplayed) {
+                currentExpression = displayValue + ' ' + op + ' ';
+                isResultDisplayed = false;
+            } else {
+                currentExpression += ' ' + op + ' ';
+            }
+            displayValue = currentExpression;
+            updateDisplay();
+        }
+
+        // 計算実行
+        function calculate() {
+            try {
+                const expression = currentExpression.replace(/×/g, '*').replace(/÷/g, '/');
+                const result = eval(expression);
+                
+                if (!isFinite(result)) {
+                    displayValue = 'エラー';
+                } else {
+                    // 小数点以下の精度を適切に処理
+                    const roundedResult = Math.round(result * 100000000) / 100000000;
+                    displayValue = roundedResult.toString();
+                    lastResult = roundedResult;
+                    
+                    // 履歴に保存
+                    saveToHistory({
+                        expression: currentExpression,
+                        result: roundedResult,
+                        type: 'basic',
+                        timestamp: new Date()
+                    });
+                }
+                
+                isResultDisplayed = true;
+                currentExpression = '';
+            } catch (error) {
+                displayValue = 'エラー';
+                isResultDisplayed = true;
+                currentExpression = '';
+            }
+            updateDisplay();
+        }
+
+        // ディスプレイクリア
+        function clearDisplay() {
+            displayValue = '0';
+            currentExpression = '';
+            isResultDisplayed = false;
+            updateDisplay();
+        }
+
+        // 最後の文字削除
+        function deleteLastChar() {
+            if (displayValue.length > 1 && displayValue !== '0' && displayValue !== 'エラー') {
+                displayValue = displayValue.slice(0, -1);
+                currentExpression = currentExpression.slice(0, -1);
+            } else {
+                displayValue = '0';
+                currentExpression = '';
+            }
+            updateDisplay();
+        }
+
+        // 消費税計算（税込）
+        function calculateTaxInclusive() {
+            const currentValue = parseFloat(displayValue);
+            if (!isNaN(currentValue) && displayValue !== 'エラー') {
+                const result = Math.round(currentValue * 1.1 * 100) / 100;
+                displayValue = result.toString();
+                lastResult = result;
+                isResultDisplayed = true;
+                currentExpression = '';
+                
+                // 履歴に保存
+                saveToHistory({
+                    expression: `${currentValue} + 税10%`,
+                    result: result,
+                    type: 'tax-inclusive',
+                    timestamp: new Date()
+                });
+                
+                updateDisplay();
+            }
+        }
+
+        // 消費税計算（税抜）
+        function calculateTaxExclusive() {
+            const currentValue = parseFloat(displayValue);
+            if (!isNaN(currentValue) && displayValue !== 'エラー') {
+                const result = Math.round((currentValue / 1.1) * 100) / 100;
+                displayValue = result.toString();
+                lastResult = result;
+                isResultDisplayed = true;
+                currentExpression = '';
+                
+                // 履歴に保存
+                saveToHistory({
+                    expression: `${currentValue} - 税10%`,
+                    result: result,
+                    type: 'tax-exclusive',
+                    timestamp: new Date()
+                });
+                
+                updateDisplay();
+            }
+        }
+
+        // 一時保存
+        function saveToSlot(slotNumber) {
+            const currentValue = parseFloat(displayValue);
+            if (!isNaN(currentValue) && displayValue !== 'エラー') {
+                tempStorage[`slot${slotNumber}`] = currentValue;
+                
+                // UI更新
+                document.getElementById(`value${slotNumber}`).textContent = currentValue.toLocaleString();
+                document.getElementById(`slot${slotNumber}`).classList.add('has-value');
+                document.getElementById(`recall${slotNumber}`).disabled = false;
+            }
+        }
+
+        // 一時呼出し
+        function recallFromSlot(slotNumber) {
+            const value = tempStorage[`slot${slotNumber}`];
+            if (value !== null) {
+                displayValue = value.toString();
+                currentExpression = value.toString();
+                isResultDisplayed = true;
+                updateDisplay();
+            }
+        }
+
+        // 履歴保存
+        function saveToHistory(calculation) {
+            const history = JSON.parse(localStorage.getItem('calculatorHistory') || '[]');
+            history.unshift({
+                ...calculation,
+                id: Date.now().toString()
+            });
+            
+            // 最大10件まで保存
+            if (history.length > 10) {
+                history.splice(10);
+            }
+            
+            localStorage.setItem('calculatorHistory', JSON.stringify(history));
+            updateHistoryDisplay();
+        }
+
+        // 履歴データの取得
+        function getHistory() {
+            const existingHistory = localStorage.getItem('calculatorHistory');
+            if (existingHistory) {
+                return JSON.parse(existingHistory);
+            }
+            return [];
+        }
+
+        // 初回サンプルデータの生成
+        function initializeSampleHistory() {
+            const existingHistory = localStorage.getItem('calculatorHistory');
+            if (!existingHistory) {
+                const sampleHistory = [
+                    { id: '1', expression: '1500 + 税10%', result: 1650, type: 'tax-inclusive', timestamp: new Date(Date.now() - 60000) },
+                    { id: '2', expression: '100 + 200', result: 300, type: 'basic', timestamp: new Date(Date.now() - 120000) },
+                    { id: '3', expression: '1100 - 税10%', result: 1000, type: 'tax-exclusive', timestamp: new Date(Date.now() - 180000) },
+                    { id: '4', expression: '50 × 3', result: 150, type: 'basic', timestamp: new Date(Date.now() - 240000) },
+                    { id: '5', expression: '2000 + 税10%', result: 2200, type: 'tax-inclusive', timestamp: new Date(Date.now() - 300000) },
+                    { id: '6', expression: '25 + 25', result: 50, type: 'basic', timestamp: new Date(Date.now() - 360000) }
+                ];
+                localStorage.setItem('calculatorHistory', JSON.stringify(sampleHistory));
+            }
+        }
+
+        // 相対時間の表示
+        function getRelativeTime(timestamp) {
+            const now = new Date();
+            const diff = now - new Date(timestamp);
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'たった今';
+            if (minutes < 60) return `${minutes}分前`;
+            if (hours < 24) return `${hours}時間前`;
+            return `${days}日前`;
+        }
+
+        // 履歴項目のHTML生成
+        function createHistoryItemHTML(item) {
+            return `
+                <div class="history-item ${item.type}" onclick="useHistoryResult(${item.result})">
+                    <div class="use-hint">クリック</div>
+                    <div class="history-expression">${item.expression}</div>
+                    <div class="history-result">${item.result.toLocaleString()}</div>
+                    <div class="history-meta">
+                        <span class="history-type ${item.type}">
+                            ${item.type === 'basic' ? '基本' : item.type === 'tax-inclusive' ? '税込' : '税抜'}
+                        </span>
+                        <span class="history-time">${getRelativeTime(item.timestamp)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 履歴表示の更新
+        function updateHistoryDisplay() {
+            const history = getHistory();
+            const historyList = document.getElementById('historyList');
+            
+            // フィルタリング
+            const filteredHistory = currentFilter === 'all' 
+                ? history 
+                : history.filter(item => item.type === currentFilter);
+
+            if (filteredHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📊</div>
+                        <div>履歴なし</div>
+                    </div>
+                `;
+            } else {
+                historyList.innerHTML = filteredHistory.map(createHistoryItemHTML).join('');
+            }
+        }
+
+        // フィルター変更
+        function filterHistory(type) {
+            currentFilter = type;
+            
+            // フィルターボタンの状態更新
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            updateHistoryDisplay();
+        }
+
+        // 履歴結果の使用
+        function useHistoryResult(result) {
+            displayValue = result.toString();
+            currentExpression = result.toString();
+            isResultDisplayed = true;
+            updateDisplay();
+        }
+
+        // 全履歴削除
+        function clearAllHistory() {
+            if (confirm('すべての計算履歴を削除しますか？')) {
+                localStorage.removeItem('calculatorHistory');
+                updateHistoryDisplay();
+            }
+        }
+
+        // キーボード入力対応
+        document.addEventListener('keydown', function(event) {
+            event.preventDefault();
+            
+            const key = event.key;
+            if (key >= '0' && key <= '9') {
+                inputNumber(key);
+            } else if (key === '.') {
+                inputNumber('.');
+            } else if (key === '+') {
+                inputOperator('+');
+            } else if (key === '-') {
+                inputOperator('-');
+            } else if (key === '*') {
+                inputOperator('*');
+            } else if (key === '/') {
+                inputOperator('/');
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                deleteLastChar();
+            }
+        });
+
+        // 初期化
+        window.addEventListener('load', function() {
+            initializeSampleHistory();
+            updateDisplay();
+            updateHistoryDisplay();
+            
+            // 定期的に相対時間を更新
+            setInterval(updateHistoryDisplay, 60000);
+        });
+    </script>
+</body>
+</html>
